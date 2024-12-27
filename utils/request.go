@@ -6,6 +6,7 @@ import (
 	"net/http"
 )
 
+// MakeAPIRequest makes a GET request to the given API URL
 func MakeAPIRequest(apiURL string) ([]byte, error) {
 	resp, err := http.Get(apiURL)
 	if err != nil {
@@ -14,7 +15,7 @@ func MakeAPIRequest(apiURL string) ([]byte, error) {
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		return nil, fmt.Errorf("API request failed with status: %d", resp.StatusCode)	
+		return nil, fmt.Errorf("API request failed with status: %d", resp.StatusCode)
 	}
 
 	body, err := io.ReadAll(resp.Body)
