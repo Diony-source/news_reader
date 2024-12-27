@@ -5,40 +5,30 @@ import (
 	"fmt"
 	"news_reader/models"
 	"news_reader/utils"
+	"os"
 )
 
-// FetchNews fetches the latest news from the API and determines the most popular news
-func FetchNews() ([]models.NewsItem, error) {
-	apiURL := "https://newsapi.example.com/latest" // Replace with actual API URL
+// FetchNews fetches news based on the selected category
+func FetchNews(category string) ([]models.NewsItem, error) {
+	apiKey := os.Getenv("NEWS_API_KEY")
+	if apiKey == "" {
+		return nil, fmt.Errorf("NEWS_API_KEY is not set in environment variables")
+	}
+
+	// Build the API URL for the selected category
+	apiURL := fmt.Sprintf("https://newsapi.org/v2/top-headlines?category=%s&country=us&apiKey=%s", category, apiKey)
 	response, err := utils.MakeAPIRequest(apiURL)
 	if err != nil {
 		return nil, fmt.Errorf("failed to fetch news: %v", err)
 	}
 
-	var news []models.NewsItem
-	err = json.Unmarshal(response, &news)
+	var result struct {
+		Articles []models.NewsItem `json:"articles"`
+	}
+	err = json.Unmarshal(response, &result)
 	if err != nil {
 		return nil, fmt.Errorf("error parsing news data: %v", err)
 	}
 
-	// Determine the most popular news
-	markMostPopular(news)
-
-	return news, nil
-}
-
-// markMostPopular marks the most popular news item
-func markMostPopular(news []models.NewsItem) {
-	if len(news) == 0 {
-		return
-	}
-
-	mostPopularIndex := 0
-	for i, item := range news {
-		if item.Popularity > news[mostPopularIndex].Popularity {
-			mostPopularIndex = i
-		}
-	}
-	// Mark the most popular news
-	news[mostPopularIndex].IsPopular = true
+	return result.Articles, nil
 }
