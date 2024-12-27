@@ -3,26 +3,19 @@ package services
 import (
 	"encoding/json"
 	"fmt"
+	"news_reader/models"
 	"news_reader/utils"
 )
 
-// NewsItem represents a single news article
-type NewsItem struct {
-	Title     string `json:"title"`
-	Summary   string `json:"summary"`
-	Popularity int    `json:"popularity"`
-	IsPopular bool   // Marks the most popular news
-}
-
 // FetchNews fetches the latest news from the API and determines the most popular news
-func FetchNews() ([]NewsItem, error) {
+func FetchNews() ([]models.NewsItem, error) {
 	apiURL := "https://newsapi.example.com/latest" // Replace with actual API URL
 	response, err := utils.MakeAPIRequest(apiURL)
 	if err != nil {
 		return nil, fmt.Errorf("failed to fetch news: %v", err)
 	}
 
-	var news []NewsItem
+	var news []models.NewsItem
 	err = json.Unmarshal(response, &news)
 	if err != nil {
 		return nil, fmt.Errorf("error parsing news data: %v", err)
@@ -35,7 +28,7 @@ func FetchNews() ([]NewsItem, error) {
 }
 
 // markMostPopular marks the most popular news item
-func markMostPopular(news []NewsItem) {
+func markMostPopular(news []models.NewsItem) {
 	if len(news) == 0 {
 		return
 	}
